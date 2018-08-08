@@ -17,6 +17,8 @@ $dbc = $db->get_instance();
 	$test = "0";
 
 	$groups =$_POST['groups'];
+	$region = $_POST['reegion'];
+
 
 	// Data for text message. This is the text message data.
 	$sender ="BUIB"; // This is who the message appears to be from.
@@ -52,15 +54,33 @@ $dbc = $db->get_instance();
 		$time=date('h:i:s');
 
 		//get the group name
-		$q = "SELECT `groupname` from `groups` WHERE `roll` = '$groups'";
-		$ress  = mysqli_query($dbc, $q);
+		if($region == '' || $region == '-100')
+		{
+			$gname = 'Students - All Students';
+		}
+		else {
+			$q = "SELECT `groupname` from `groups` WHERE `roll` = '$groups'";
+			$ress  = mysqli_query($dbc, $q);
 
-		list($gname) = mysqli_fetch_array($ress);
+			list($gname) = mysqli_fetch_array($ress);
+
+			$gname = $gname . ' - ' . $region;
+		}
+
 
 		mysqli_query($con,"insert into inbox (sender ,message ,date,time,receiver)
 		VALUES ('$sender','$msg','$date','$time','$gname')");
 
-		$query = "select phone,cname from cont  WHERE `groups` = '$groups'";
+		//select only for selected studetns
+		if($region == '' || $region == '-100')
+		{
+			$query = "select phone,cname from cont  WHERE `groups` = '$groups'";
+		}
+		else {
+			$query = "select phone,cname from cont  WHERE `groups` = '$groups' AND `region` = '$region' ";
+		}
+
+
 
 		$rs = mysqli_query($con,$query) or die(mysql_error());
 		while($row=mysqli_fetch_array($rs))

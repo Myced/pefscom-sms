@@ -24,6 +24,36 @@ $dbc = $db->get_instance();
 <script>
 $(document).ready(function(){
 	$("#contact").mask("+237 - 000-000-000");
+
+
+	//process region here
+	$("#group").click(function(){
+		//grab the value of the option selected
+		var selected = $("#group option:selected").val();
+
+		$region = $("#region");
+
+		//if the
+		if(selected == '2')
+		{
+			// then show the region.
+			if($("#region").hasClass("hide"))
+			{
+				$("#region").removeClass("hide");
+			}
+
+			$("#region").addClass("show");
+		}
+		else
+		{
+			if($region.hasClass("show"))
+			{
+				$region.removeClass("show");
+			}
+
+			$region.addClass("hide");
+		}
+	});
 })
 </script>
 <script src="frank.js"></script>
@@ -188,6 +218,7 @@ if(empty($search)){
 
 	if (isset($_POST['groups'])){
 					$groups=$_POST['groups'];
+					$region = $_POST['region'];
 
 mysqli_query($con,"insert into groups (groupname)
 VALUES ('$groups')");
@@ -300,7 +331,7 @@ elseif($fr>="4"  && $fr<="4"){
 		<img src='sent.png' height='50px' width='50px'></h2>
         	<p class='field'>
           <label for='user'>Group Name</label>
-         <select name='groups' id='inputFieldId' autofocus="autofocus" required='required'  style=" font-size:14px;margin-top:-2px; width:400px;padding:5px;font-family:arial;" >
+         <select name='groups' id='group' autofocus="autofocus" required='required'  style=" font-size:14px;margin-top:-2px; width:400px;padding:5px;font-family:arial;" >
 <?php
 
 $rss="SELECT roll, groupname  from  groups  ";
@@ -320,6 +351,30 @@ echo "<option value='$row[roll]'>$row[name] $row[groupname]</option>";
 ?></select>
           <span id='valida' class='i i-warning'></span>
         </p>
+
+		<p >
+			<div class="hide" id="region" style="width: 80%; margin: auto; ">
+				<label for="region">Region:</label>
+				<select class="form-control" name="region">
+					<option value="-100">All Regions</option>
+					<?php
+					//get all the regions
+					$query = "SELECT * FROM `cont` GROUP BY `region`";
+					$result = mysqli_query($dbc, $query)
+						or die("Error. Cannot get the regions");
+
+					while ($row = mysqli_fetch_array($result)) {
+						?>
+						<option value="<?php echo $row['region']; ?>">
+							<?php echo $row['region']; ?>
+						</option>
+						<?php
+
+					}
+					 ?>
+				</select>
+			</div>
+		</p>
         	<input type='submit'name='abc' id='do_login' value='Process List Option' title='Get Started'style='width:230px; height:40px; margin-top:5px;' />
          <?php
 						}
@@ -352,7 +407,23 @@ echo "<option value='$row[roll]'>$row[name] $row[groupname]</option>";
 
 
 				//now check the the cost of the sms
-				$query = "SELECT * FROM `cont` WHERE `groups`  = '$groups'";
+
+				//if the group is student. then choose get the region
+				$region = $_POST['region'];
+
+				if($region == '')
+				{
+					$query = "SELECT * FROM `cont` WHERE `groups`  = '$groups'";
+				}
+				elseif ($region == '-100') {
+					$query = "SELECT * FROM `cont` WHERE `groups`  = '$groups'";
+				}
+				else {
+					$query = "SELECT * FROM `cont` WHERE `groups`  = '$groups' AND `region` = '$region' ";
+				}
+
+
+
 				$result = mysqli_query($dbc, $query);
 
 				$cost = mysqli_num_rows($result);
@@ -383,6 +454,8 @@ echo "<option value='$row[roll]'>$row[name] $row[groupname]</option>";
 	$numberss =$row['phone'];
 echo	$numbers =$int =  filter_var($numberss, FILTER_SANITIZE_NUMBER_INT)
 	?>,<?php } ?>'placeholder="New Group Name" title='Username' style='float:left;width:100%;'/>
+
+	<input type="hidden" name="reegion" value="<?php echo $_POST['region']; ?>">
 
        <textarea name="message" id="smsMessage" cols="85" rows="5"></textarea>
 
@@ -813,3 +886,5 @@ if(empty($search)){
 
 
 <?php }
+
+?>

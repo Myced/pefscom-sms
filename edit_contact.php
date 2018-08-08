@@ -9,16 +9,24 @@ if(isset($_POST['name']))
 	//get the form details
 	$roll = $_POST['roll'];
 	$name = $_POST['name'];
-	$contact = $_POST['contact'];
 	$group  = $_POST['group'];
-	
+
+	$cont=$_POST['contact'];
+
+	$contact = str_replace('+', '', $cont);
+	$contact = str_replace('-', '', $contact);
+	$contact = str_replace(' ', '', $contact);
+	$contact = str_replace(',', '', $contact);
+	$contact = str_replace('(', '', $contact);
+	$contact = str_replace(')', '', $contact);
+
 	$query = "UPDATE `cont` SET `cname` = '$name',
 		`phone` = '$contact', `groups` = '$group'
-		
+
 		WHERE `roll` = '$roll'";
 	$result = mysqli_query($dbc, $query)
 		or die("Cannot update contact");
-	
+
 	$success = "Contact Updated";
 }
 
@@ -36,14 +44,21 @@ $contact = mysqli_query($dbc, $query)
 			Edit Contact
 		</title>
 		<link rel="stylesheet" href="bootstrap.min.css">
+		<script src="jquery.min.js"></script>
+		<script src="jquery.mask.js"></script>
+		<script>
+		$(document).ready(function(){
+			$("#contact").mask("+237 - 000-000-000");
+		})
+		</script>
 	</head>
-	
+
 	<body>
 		<div class="container-fluid">
 			<h2 class="page-header">
 				Edit Contact
 			</h2>
-			
+
 			<div class="row">
 				<div class="col-md-12">
 					<?php
@@ -62,17 +77,17 @@ $contact = mysqli_query($dbc, $query)
 									   value="<?php echo $row['cname']; ?>">
 							</div>
 						</div>
-						
+
 						<div class="form-group">
 							<label class="control-lable col-xs-4 ">
 								Contact
 							</label>
 							<div  class="col-xs-8">
-								<input type="text" name="contact" class="form-control"
+								<input type="text" name="contact" class="form-control" id="contact"
 									   value="<?php echo $row['phone']; ?>">
 							</div>
 						</div>
-						
+
 						<div class="form-group">
 							<label class="control-lable col-xs-4">
 								Group
@@ -82,7 +97,7 @@ $contact = mysqli_query($dbc, $query)
 									<?php
 									$query = "SELECT * FROM `groups`";
 									$res = mysqli_query($dbc, $query);
-									
+
 									while($r = mysqli_fetch_array($res))
 									{
 										?>
@@ -102,10 +117,10 @@ $contact = mysqli_query($dbc, $query)
 								</select>
 							</div>
 						</div>
-						
+
 						<div class="form-group">
 							<label class="control-lable col-xs-4">
-								
+
 							</label>
 							<div  class="col-xs-8">
 								<input type="submit" name="submit" value="Update Contact" class="btn btn-primary">
@@ -117,14 +132,14 @@ $contact = mysqli_query($dbc, $query)
 					}
 					?>
 				</div>
-				
-				
+
+
 			</div>
-			
-			
+
+
 		</div>
 	</body>
-	
+
 	<?php
 	if(isset($success))
 	{
@@ -135,7 +150,7 @@ $contact = mysqli_query($dbc, $query)
 		<?php
 	}
 	?>
-	
+
 	<script src="jquery.js"></script>
 	<script src="bootstrap.js"></script>
 </html>
